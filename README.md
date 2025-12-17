@@ -43,7 +43,19 @@ A production-ready, lightweight log ingestion system built in Go for collecting 
                                        └─────────────────┘
 ```
 
-## Quick Start
+## Deployment Architecture
+
+**logl** consists of two components with different deployment patterns:
+
+- **logl-server** (Centralized) - Single instance that receives logs from all tailers
+- **logl-tailer** (Distributed) - One instance per application host
+
+See detailed deployment guides:
+- **[Quick Start Guide](deployments/QUICK_START.md)** - Step-by-step deployment
+- **[Server Deployment](deployments/SERVER_DEPLOYMENT.md)** - Podman, Systemd, Kubernetes options
+- **[Tailer Deployment](deployments/TAILER_DEPLOYMENT.md)** - Per-host deployment strategies
+
+## Quick Start (Local Testing)
 
 ### Prerequisites
 
