@@ -1,0 +1,41 @@
+# Log Tailer Configuration Example
+
+# Service identity (required)
+service_name: "web-api"
+hostname: "${HOSTNAME}"  # Environment variable substitution
+
+# Log files to tail
+log_files:
+  - path: "/var/log/app/application.log"
+    enabled: true
+  - path: "/var/log/app/error.log"
+    enabled: true
+  - path: "/var/log/nginx/access.log"
+    enabled: false
+
+# Server connection settings
+server:
+  url: "https://logl-server:8443/v1/logs/ingest"
+  timeout: 30s
+  max_retries: 5
+  retry_backoff: 1s
+
+# Batching configuration
+batching:
+  max_size: 100        # Max entries per batch
+  max_wait: 5s         # Max time to wait before flushing
+  queue_size: 1000     # Internal queue capacity
+
+# mTLS configuration
+mtls:
+  ca_cert: "/etc/logl/certs/ca.crt"
+  client_cert: "/etc/logl/certs/client.crt"
+  client_key: "/etc/logl/certs/client.key"
+  server_name: "logl-server"  # For SNI
+
+# State management
+state_file: "/var/lib/logl/tailer-state.json"
+
+# Logging
+log_level: "info"  # debug, info, warn, error
+log_format: "json"  # json or text

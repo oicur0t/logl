@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  logl-server:
+    build:
+      context: ../../
+      dockerfile: deployments/podman/Dockerfile.server
+    container_name: logl-server
+    ports:
+      - "8443:8443"
+    environment:
+      - MONGO_CERT_PATH=/certificates/mongodb-cert.pem
+    volumes:
+      - ../certs/certs:/etc/logl/certs:ro
+      - ./server.yaml:/etc/logl/server.yaml:ro
+      - /certificates:/certificates:ro  # MongoDB certificates
+    networks:
+      - logl-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verify-certificate", "--spider", "https://localhost:8443/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  logl-tailer:
+    build:
+      context: ../../
+      dockerfile: deployments/podman/Dockerfile.tailer
+    container_name: logl-tailer
+    environment:
+      - HOSTNAME=${HOSTNAME:-localhost}
+    volumes:
+      - ../certs/certs:/etc/logl/certs:ro
+      - ./tailer.yaml:/etc/logl/tailer.yaml:ro
+      - /var/log:/var/log:ro  # Mount host logs (adjust as needed)
+      - tailer-state:/var/lib/logl  # Persist state
+    depends_on:
+      - logl-server
+    networks:
+      - logl-network
+    restart: unless-stopped
+
+volumes:
+  tailer-state:
+    driver: local
+
+networks:
+  logl-network:
+    driver: bridge

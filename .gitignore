@@ -1,0 +1,57 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.out
+
+# Go workspace file
+go.work
+
+# Build artifacts
+logl-tailer
+logl-server
+
+# Certificates and keys (NEVER commit these!)
+*.key
+*.crt
+*.pem
+*.csr
+*.srl
+deployments/certs/certs/
+
+# Configuration files with secrets
+*.env
+*_secret.yaml
+*_private.yaml
+
+# State files
+*.state
+tailer-state.json
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Log files
+*.log
+
+# Dependency directories
+vendor/
+node_modules/
+
+# Temporary files
+tmp/
+temp/

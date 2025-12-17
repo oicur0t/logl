@@ -1,0 +1,41 @@
+# Log Server Configuration Example
+
+# Server settings
+server:
+  listen_address: "0.0.0.0:8443"
+  read_timeout: 30s
+  write_timeout: 30s
+  shutdown_timeout: 30s
+
+# MongoDB configuration
+mongodb:
+  # For MongoDB Atlas with X.509 authentication
+  uri: "mongodb+srv://cluster0.rrp7vpi.mongodb.net/?authSource=%24external&authMechanism=MONGODB-X509&appName=Cluster0"
+  database: "logl"
+  collection_prefix: "logs_"
+  certificate_key_file: "/certificates/mongodb-cert.pem"
+
+  # Connection pool settings
+  timeout: 10s
+  max_pool_size: 100
+
+  # Optional TTL for automatic log cleanup (in days)
+  ttl_days: 30  # Delete logs older than 30 days
+
+# mTLS configuration
+mtls:
+  enabled: true
+  ca_cert: "/etc/logl/certs/ca.crt"
+  server_cert: "/etc/logl/certs/server.crt"
+  server_key: "/etc/logl/certs/server.key"
+  client_auth: "require"  # require, request, or none
+
+# Optional: Rate limiting
+rate_limiting:
+  enabled: false
+  requests_per_minute: 1000
+  burst: 100
+
+# Logging
+log_level: "info"  # debug, info, warn, error
+log_format: "json"  # json or text
