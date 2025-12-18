@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/oicur0t/logl/internal/config"
 	"github.com/oicur0t/logl/internal/server"
