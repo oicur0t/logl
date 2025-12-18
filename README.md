@@ -52,6 +52,7 @@ A production-ready, lightweight log ingestion system built in Go for collecting 
 
 See detailed deployment guides:
 - **[Quick Start Guide](deployments/QUICK_START.md)** - Step-by-step deployment
+- **[VPS Deployment Guide](deployments/VPS_DEPLOYMENT.md)** - Production VPS deployment with automation
 - **[Server Deployment](deployments/SERVER_DEPLOYMENT.md)** - Podman, Systemd, Kubernetes options
 - **[Tailer Deployment](deployments/TAILER_DEPLOYMENT.md)** - Per-host deployment strategies
 
