@@ -4,6 +4,13 @@ set -e
 CERTS_DIR="$(dirname "$0")/certs"
 mkdir -p "$CERTS_DIR"
 
+# Check if certificates already exist
+if [ -f "$CERTS_DIR/ca.crt" ] && [ -f "$CERTS_DIR/server.crt" ] && [ -f "$CERTS_DIR/client.crt" ]; then
+  echo "Certificates already exist in $CERTS_DIR"
+  echo "Skipping generation. To regenerate, delete existing certificates first."
+  exit 0
+fi
+
 echo "Generating mTLS certificates for logl..."
 
 # Generate CA
@@ -48,9 +55,9 @@ openssl x509 -req -in "$CERTS_DIR/client.csr" \
 # Clean up CSR files
 rm -f "$CERTS_DIR"/*.csr
 
-# Set permissions
+# Set permissions (644 for container access - files mounted read-only)
 chmod 644 "$CERTS_DIR"/*.crt
-chmod 600 "$CERTS_DIR"/*.key
+chmod 644 "$CERTS_DIR"/*.key
 
 echo ""
 echo "✓ Certificates generated successfully in $CERTS_DIR"
