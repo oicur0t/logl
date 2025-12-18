@@ -32,6 +32,10 @@ deployments/certs/certs/
 *.env
 *_secret.yaml
 *_private.yaml
+deployments/podman/server.yaml
+deployments/podman/tailer.yaml
+configs/server.yaml
+configs/tailer.yaml
 
 # State files
 *.state
