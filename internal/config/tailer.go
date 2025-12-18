@@ -14,11 +14,11 @@ type LogFileConfig struct {
 	Enabled bool   `mapstructure:"enabled"`
 }
 
-// ServerConfig holds server connection settings
-type ServerConfig struct {
-	URL         string        `mapstructure:"url"`
-	Timeout     time.Duration `mapstructure:"timeout"`
-	MaxRetries  int           `mapstructure:"max_retries"`
+// UpstreamServerConfig holds server connection settings
+type UpstreamServerConfig struct {
+	URL          string        `mapstructure:"url"`
+	Timeout      time.Duration `mapstructure:"timeout"`
+	MaxRetries   int           `mapstructure:"max_retries"`
 	RetryBackoff time.Duration `mapstructure:"retry_backoff"`
 }
 
@@ -39,15 +39,15 @@ type MTLSConfig struct {
 
 // TailerConfig represents the complete tailer configuration
 type TailerConfig struct {
-	ServiceName string           `mapstructure:"service_name"`
-	Hostname    string           `mapstructure:"hostname"`
-	LogFiles    []LogFileConfig  `mapstructure:"log_files"`
-	Server      ServerConfig     `mapstructure:"server"`
-	Batching    BatchingConfig   `mapstructure:"batching"`
-	MTLS        MTLSConfig       `mapstructure:"mtls"`
-	StateFile   string           `mapstructure:"state_file"`
-	LogLevel    string           `mapstructure:"log_level"`
-	LogFormat   string           `mapstructure:"log_format"`
+	ServiceName string                `mapstructure:"service_name"`
+	Hostname    string                `mapstructure:"hostname"`
+	LogFiles    []LogFileConfig       `mapstructure:"log_files"`
+	Server      UpstreamServerConfig  `mapstructure:"server"`
+	Batching    BatchingConfig        `mapstructure:"batching"`
+	MTLS        MTLSConfig            `mapstructure:"mtls"`
+	StateFile   string                `mapstructure:"state_file"`
+	LogLevel    string                `mapstructure:"log_level"`
+	LogFormat   string                `mapstructure:"log_format"`
 }
 
 // LoadTailerConfig loads the tailer configuration from a file
