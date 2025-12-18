@@ -31,21 +31,17 @@ else
 fi
 echo ""
 
-# Step 2: Check if podman-compose is installed
-echo -e "${YELLOW}Step 2: Checking podman-compose...${NC}"
-if ! command -v podman-compose &> /dev/null; then
-    echo -e "${YELLOW}podman-compose not found${NC}"
-    read -p "Do you want to install podman-compose now? (Y/n) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Nn]$ ]]; then
-        chmod +x deployments/install-podman-compose.sh
-        ./deployments/install-podman-compose.sh
-    else
-        echo -e "${RED}podman-compose is required. Exiting.${NC}"
-        exit 1
-    fi
+# Step 2: Check if podman compose is available
+echo -e "${YELLOW}Step 2: Checking podman compose...${NC}"
+if podman compose version &> /dev/null; then
+    COMPOSE_VERSION=$(podman compose version 2>&1 || echo "unknown")
+    echo -e "${GREEN}✓ podman compose available${NC}"
+    echo "  Version info: $COMPOSE_VERSION"
 else
-    echo -e "${GREEN}✓ podman-compose found${NC}"
+    echo -e "${RED}✗ podman compose not available${NC}"
+    echo "Your Podman version doesn't support the compose subcommand."
+    echo "Please upgrade Podman or install podman-compose separately."
+    exit 1
 fi
 echo ""
 

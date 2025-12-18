@@ -55,15 +55,15 @@ docker-push:
 	$(CONTAINER_TOOL) push $(IMAGE_PREFIX)-tailer:$(IMAGE_TAG)
 	$(CONTAINER_TOOL) push $(IMAGE_PREFIX)-server:$(IMAGE_TAG)
 
-## run-local: Run locally with podman-compose
+## run-local: Run locally with podman compose
 run-local: certs
-	@echo "Starting services with podman-compose..."
-	@cd deployments/podman && podman-compose up -d
+	@echo "Starting services with podman compose..."
+	@cd deployments/podman && podman compose up -d
 
 ## stop-local: Stop local environment
 stop-local:
 	@echo "Stopping services..."
-	@cd deployments/podman && podman-compose down
+	@cd deployments/podman && podman compose down
 
 ## clean: Clean build artifacts
 clean:

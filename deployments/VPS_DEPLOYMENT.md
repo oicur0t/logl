@@ -30,13 +30,13 @@ EOF
 # Update and install
 sudo apt-get clean
 sudo apt-get update
-sudo apt-get install -y podman podman-compose
+sudo apt-get install -y podman
 ```
 
 Verify installation:
 ```bash
 podman --version
-podman-compose --version
+podman compose version  # Built-in compose support
 ```
 
 ### 2. Install Additional Tools

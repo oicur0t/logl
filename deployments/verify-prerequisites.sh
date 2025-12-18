@@ -54,10 +54,14 @@ check_directory() {
 echo "1. Checking required commands..."
 echo "--------------------------------"
 check_command "podman" || ((ERRORS++))
-check_command "podman-compose" || {
-    echo -e "${YELLOW}⚠${NC}  podman-compose not found, will attempt to install"
+
+# Check for podman compose (built-in subcommand)
+if podman compose version &> /dev/null; then
+    echo -e "${GREEN}✓${NC} podman compose found (built-in)"
+else
+    echo -e "${YELLOW}⚠${NC}  podman compose not available"
     ((WARNINGS++))
-}
+fi
 check_command "go" || {
     echo -e "${YELLOW}⚠${NC}  Go not found (only needed for building from source)"
     ((WARNINGS++))
