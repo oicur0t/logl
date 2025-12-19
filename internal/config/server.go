@@ -42,12 +42,18 @@ type RateLimitConfig struct {
 	Burst              int  `mapstructure:"burst"`
 }
 
+// JSONParsingConfig holds JSON log parsing configuration
+type JSONParsingConfig struct {
+	Enabled bool `mapstructure:"enabled"`
+}
+
 // ServerConfig represents the complete server configuration
 type ServerConfig struct {
 	Server       HTTPServerConfig  `mapstructure:"server"`
 	MongoDB      MongoDBConfig     `mapstructure:"mongodb"`
 	MTLS         ServerMTLSConfig  `mapstructure:"mtls"`
 	RateLimiting RateLimitConfig   `mapstructure:"rate_limiting"`
+	JSONParsing  JSONParsingConfig `mapstructure:"json_parsing"`
 	LogLevel     string            `mapstructure:"log_level"`
 	LogFormat    string            `mapstructure:"log_format"`
 }
@@ -73,6 +79,7 @@ func LoadServerConfig(configPath string) (*ServerConfig, error) {
 	v.SetDefault("rate_limiting.enabled", false)
 	v.SetDefault("rate_limiting.requests_per_minute", 1000)
 	v.SetDefault("rate_limiting.burst", 100)
+	v.SetDefault("json_parsing.enabled", false)
 	v.SetDefault("log_level", "info")
 	v.SetDefault("log_format", "json")
 

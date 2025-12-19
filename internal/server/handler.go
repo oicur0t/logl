@@ -12,13 +12,15 @@ import (
 // Handler handles HTTP requests
 type Handler struct {
 	storage *Storage
+	parser  *LogParser
 	logger  *zap.Logger
 }
 
 // NewHandler creates a new HTTP handler
-func NewHandler(storage *Storage, logger *zap.Logger) *Handler {
+func NewHandler(storage *Storage, parser *LogParser, logger *zap.Logger) *Handler {
 	return &Handler{
 		storage: storage,
+		parser:  parser,
 		logger:  logger,
 	}
 }
@@ -53,6 +55,11 @@ func (h *Handler) IngestLogs(w http.ResponseWriter, r *http.Request) {
 	h.logger.Debug("Received batch",
 		zap.String("service", batch.ServiceName),
 		zap.Int("entries", len(batch.Entries)))
+
+	// Parse JSON logs if enabled
+	for i := range batch.Entries {
+		h.parser.ParseLogEntry(&batch.Entries[i])
+	}
 
 	// Insert into MongoDB
 	if err := h.storage.InsertBatch(r.Context(), batch); err != nil {

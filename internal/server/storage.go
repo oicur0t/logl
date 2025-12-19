@@ -133,6 +133,30 @@ func (s *Storage) ensureIndexes(ctx context.Context, collection *mongo.Collectio
 			},
 			Options: options.Index().SetName("hostname_timestamp"),
 		},
+		// Indexes for parsed JSON fields (sparse to only index documents that have these fields)
+		{
+			Keys:    bson.D{{Key: "parsed.level", Value: 1}},
+			Options: options.Index().SetName("parsed_level").SetSparse(true),
+		},
+		{
+			Keys:    bson.D{{Key: "parsed.timestamp", Value: -1}},
+			Options: options.Index().SetName("parsed_timestamp").SetSparse(true),
+		},
+		{
+			Keys:    bson.D{{Key: "parsed.request_id", Value: 1}},
+			Options: options.Index().SetName("parsed_request_id").SetSparse(true),
+		},
+		{
+			Keys:    bson.D{{Key: "parsed.user_id", Value: 1}},
+			Options: options.Index().SetName("parsed_user_id").SetSparse(true),
+		},
+		{
+			Keys: bson.D{
+				{Key: "parsed.level", Value: 1},
+				{Key: "parsed.timestamp", Value: -1},
+			},
+			Options: options.Index().SetName("parsed_level_timestamp").SetSparse(true),
+		},
 	}
 
 	// Add TTL index if configured

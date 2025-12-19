@@ -53,8 +53,11 @@ func main() {
 		logger.Fatal("Failed to create storage", zap.Error(err))
 	}
 
+	// Create log parser
+	parser := server.NewLogParser(cfg.JSONParsing, logger)
+
 	// Create handler
-	handler := server.NewHandler(storage, logger)
+	handler := server.NewHandler(storage, parser, logger)
 
 	// Create HTTP mux
 	mux := http.NewServeMux()

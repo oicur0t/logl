@@ -1,0 +1,17 @@
+name: New MCP server
+version: 0.0.1
+schema: v1
+mcpServers:
+  - name: sonarqube
+    command: docker
+    args: 
+      - run
+      - -i
+      - --rm
+      - -e
+      - SONARQUBE_TOKEN=squ_a9dda465ad114a8d71d0abf5995ae0b9f8a5348b
+      - -e
+      - SONARQUBE_URL=http://wopr-wsl:9000
+      - mcp/sonarqube  # Correct image name
+    transport: stdio
+

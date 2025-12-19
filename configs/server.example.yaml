@@ -36,6 +36,12 @@ rate_limiting:
   requests_per_minute: 1000
   burst: 100
 
+# Optional: JSON log parsing
+# When enabled, the server will attempt to parse log lines as JSON
+# and store the parsed data in a "parsed" field for easier querying
+json_parsing:
+  enabled: true  # Set to false to disable JSON parsing
+
 # Logging
 log_level: "info"  # debug, info, warn, error
 log_format: "json"  # json or text
