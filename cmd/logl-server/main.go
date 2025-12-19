@@ -61,17 +61,21 @@ func main() {
 
 	// Create HTTP mux
 	mux := http.NewServeMux()
-	mux.HandleFunc("/v1/logs/ingest", handler.IngestLogs)
+
+	// Health endpoint without mTLS (for health checks)
 	mux.HandleFunc("/v1/health", handler.Health)
 
-	// Apply middleware
+	// Protected endpoints with mTLS
+	ingestHandler := http.HandlerFunc(handler.IngestLogs)
+	if cfg.MTLS.Enabled {
+		ingestHandler = server.MTLSMiddleware(logger)(ingestHandler).(http.HandlerFunc)
+	}
+	mux.Handle("/v1/logs/ingest", ingestHandler)
+
+	// Apply global middleware
 	var httpHandler http.Handler = mux
 	httpHandler = server.RecoveryMiddleware(logger)(httpHandler)
 	httpHandler = server.LoggingMiddleware(logger)(httpHandler)
-
-	if cfg.MTLS.Enabled {
-		httpHandler = server.MTLSMiddleware(logger)(httpHandler)
-	}
 
 	// Create HTTP server
 	httpServer := &http.Server{
