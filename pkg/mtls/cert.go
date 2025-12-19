@@ -55,7 +55,9 @@ func LoadServerTLSConfig(caCertPath, serverCertPath, serverKeyPath string, requi
 
 	clientAuth := tls.NoClientCert
 	if requireClientCert {
-		clientAuth = tls.RequireAndVerifyClientCert
+		// Request (but don't require) client certs at TLS layer
+		// Middleware will enforce requirement for specific endpoints
+		clientAuth = tls.VerifyClientCertIfGiven
 	}
 
 	return &tls.Config{
