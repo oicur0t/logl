@@ -89,11 +89,18 @@ func main() {
 		httpClient,
 	)
 
-	// Get enabled log files
+	// Get enabled log files and build service name mapping
 	var enabledLogFiles []string
+	serviceNames := make(map[string]string)
 	for _, lf := range cfg.LogFiles {
 		if lf.Enabled {
 			enabledLogFiles = append(enabledLogFiles, lf.Path)
+			// Use per-file service name if set, otherwise use global service name
+			if lf.ServiceName != "" {
+				serviceNames[lf.Path] = lf.ServiceName
+			} else {
+				serviceNames[lf.Path] = cfg.ServiceName
+			}
 		}
 	}
 
@@ -103,7 +110,7 @@ func main() {
 
 	// Create watcher
 	watcher := tailer.NewWatcher(
-		cfg.ServiceName,
+		serviceNames,
 		cfg.Hostname,
 		enabledLogFiles,
 		cfg.StateFile,

@@ -8,10 +8,14 @@ hostname: "${HOSTNAME}"  # Environment variable substitution
 log_files:
   - path: "/var/log/app/application.log"
     enabled: true
+    # Optional: Override service name for this file
+    # service_name: "web-api-app"
   - path: "/var/log/app/error.log"
     enabled: true
+    # service_name: "web-api-errors"
   - path: "/var/log/nginx/access.log"
     enabled: false
+    # service_name: "web-api-nginx"
 
 # Server connection settings
 server:

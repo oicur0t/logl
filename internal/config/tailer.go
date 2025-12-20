@@ -10,8 +10,9 @@ import (
 
 // LogFileConfig represents a single log file to tail
 type LogFileConfig struct {
-	Path    string `mapstructure:"path"`
-	Enabled bool   `mapstructure:"enabled"`
+	Path        string `mapstructure:"path"`
+	Enabled     bool   `mapstructure:"enabled"`
+	ServiceName string `mapstructure:"service_name"` // Optional override, defaults to global service_name
 }
 
 // UpstreamServerConfig holds server connection settings

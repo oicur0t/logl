@@ -15,26 +15,26 @@ import (
 
 // Watcher tails log files and sends lines to a channel
 type Watcher struct {
-	serviceName string
-	hostname    string
-	logFiles    []string
-	stateFile   string
-	logger      *zap.Logger
-	lineChan    chan<- models.LogEntry
-	state       map[string]*models.FileState
-	stateMu     sync.RWMutex
+	serviceNames map[string]string // filepath -> service name mapping
+	hostname     string
+	logFiles     []string
+	stateFile    string
+	logger       *zap.Logger
+	lineChan     chan<- models.LogEntry
+	state        map[string]*models.FileState
+	stateMu      sync.RWMutex
 }
 
 // NewWatcher creates a new log file watcher
-func NewWatcher(serviceName, hostname string, logFiles []string, stateFile string, logger *zap.Logger, lineChan chan<- models.LogEntry) *Watcher {
+func NewWatcher(serviceNames map[string]string, hostname string, logFiles []string, stateFile string, logger *zap.Logger, lineChan chan<- models.LogEntry) *Watcher {
 	return &Watcher{
-		serviceName: serviceName,
-		hostname:    hostname,
-		logFiles:    logFiles,
-		stateFile:   stateFile,
-		logger:      logger,
-		lineChan:    lineChan,
-		state:       make(map[string]*models.FileState),
+		serviceNames: serviceNames,
+		hostname:     hostname,
+		logFiles:     logFiles,
+		stateFile:    stateFile,
+		logger:       logger,
+		lineChan:     lineChan,
+		state:        make(map[string]*models.FileState),
 	}
 }
 
@@ -123,7 +123,7 @@ func (w *Watcher) tailFile(ctx context.Context, filepath string) error {
 
 			// Create log entry
 			entry := models.LogEntry{
-				ServiceName: w.serviceName,
+				ServiceName: w.serviceNames[filepath],
 				Hostname:    w.hostname,
 				FilePath:    filepath,
 				Line:        line.Text,
