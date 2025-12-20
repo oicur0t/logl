@@ -11,7 +11,7 @@ import (
 
 // Batcher accumulates log entries and sends them in batches
 type Batcher struct {
-	serviceName string
+	serviceName string // Default service name for logging only
 	maxSize     int
 	maxWait     time.Duration
 	logger      *zap.Logger
@@ -19,7 +19,7 @@ type Batcher struct {
 
 	lineChan chan models.LogEntry
 	mu       sync.Mutex
-	batch    []models.LogEntry
+	batches  map[string][]models.LogEntry // service name -> entries
 }
 
 // BatchSender is an interface for sending log batches
@@ -36,7 +36,7 @@ func NewBatcher(serviceName string, maxSize int, maxWait time.Duration, queueSiz
 		logger:      logger,
 		sender:      sender,
 		lineChan:    make(chan models.LogEntry, queueSize),
-		batch:       make([]models.LogEntry, 0, maxSize),
+		batches:     make(map[string][]models.LogEntry),
 	}
 }
 
@@ -61,13 +61,17 @@ func (b *Batcher) Start(ctx context.Context) error {
 
 		case entry := <-b.lineChan:
 			b.mu.Lock()
-			b.batch = append(b.batch, entry)
-			shouldFlush := len(b.batch) >= b.maxSize
+			serviceName := entry.ServiceName
+			if _, exists := b.batches[serviceName]; !exists {
+				b.batches[serviceName] = make([]models.LogEntry, 0, b.maxSize)
+			}
+			b.batches[serviceName] = append(b.batches[serviceName], entry)
+			shouldFlush := len(b.batches[serviceName]) >= b.maxSize
 			b.mu.Unlock()
 
 			if shouldFlush {
-				if err := b.flush(ctx); err != nil {
-					b.logger.Error("Failed to flush batch", zap.Error(err))
+				if err := b.flushService(ctx, serviceName); err != nil {
+					b.logger.Error("Failed to flush batch", zap.Error(err), zap.String("service", serviceName))
 				}
 				ticker.Reset(b.maxWait)
 			}
@@ -81,40 +85,59 @@ func (b *Batcher) Start(ctx context.Context) error {
 	}
 }
 
-// flush sends the current batch to the server
+// flush sends all current batches to the server
 func (b *Batcher) flush(ctx context.Context) error {
 	b.mu.Lock()
-	if len(b.batch) == 0 {
+	services := make([]string, 0, len(b.batches))
+	for serviceName := range b.batches {
+		services = append(services, serviceName)
+	}
+	b.mu.Unlock()
+
+	for _, serviceName := range services {
+		if err := b.flushService(ctx, serviceName); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// flushService sends the batch for a specific service to the server
+func (b *Batcher) flushService(ctx context.Context, serviceName string) error {
+	b.mu.Lock()
+	batch, exists := b.batches[serviceName]
+	if !exists || len(batch) == 0 {
 		b.mu.Unlock()
 		return nil
 	}
 
 	// Create a copy of the batch for sending
 	batchToSend := models.LogBatch{
-		ServiceName: b.serviceName,
-		Entries:     make([]models.LogEntry, len(b.batch)),
+		ServiceName: serviceName,
+		Entries:     make([]models.LogEntry, len(batch)),
 	}
-	copy(batchToSend.Entries, b.batch)
+	copy(batchToSend.Entries, batch)
 
-	// Clear the current batch
-	b.batch = b.batch[:0]
+	// Clear this service's batch
+	b.batches[serviceName] = b.batches[serviceName][:0]
 	b.mu.Unlock()
 
 	b.logger.Debug("Flushing batch",
 		zap.Int("size", len(batchToSend.Entries)),
-		zap.String("service", b.serviceName))
+		zap.String("service", serviceName))
 
 	// Send the batch
 	if err := b.sender.SendBatch(ctx, batchToSend); err != nil {
 		b.logger.Error("Failed to send batch",
 			zap.Error(err),
-			zap.Int("size", len(batchToSend.Entries)))
+			zap.Int("size", len(batchToSend.Entries)),
+			zap.String("service", serviceName))
 		return err
 	}
 
 	b.logger.Info("Batch sent successfully",
 		zap.Int("size", len(batchToSend.Entries)),
-		zap.String("service", b.serviceName))
+		zap.String("service", serviceName))
 
 	return nil
 }
